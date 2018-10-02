@@ -1,12 +1,12 @@
-# Gopdm
+# Horde
 
-Golang Port Daemon
+Masterless node tracker.
 
 ### What is this for?
 
 To have nodes talk to eachother and be aware of eachother in realtime.
 
-Kind of like `epdm` in erlang/elixir.
+Replace need for centralized cache. Automatically shard data throughout a cluster.
 
 ### TODO
 
