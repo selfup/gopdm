@@ -11,7 +11,7 @@ func Boot() *Manager {
 	go func() {
 		defer manager.RemoveSelfFromHorde()
 
-		http.HandleFunc("/", ManagerHandler(manager))
+		http.HandleFunc("/", managerHandler(manager))
 
 		http.ListenAndServe(":9742", nil)
 
@@ -20,8 +20,8 @@ func Boot() *Manager {
 	return manager
 }
 
-// ManagerHandler is the http interface to the horde
-func ManagerHandler(manager *Manager) func(w http.ResponseWriter, r *http.Request) {
+// managerHandler is the http interface to the horde
+func managerHandler(manager *Manager) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Horde is listening!"))
 	}
