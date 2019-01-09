@@ -1,6 +1,7 @@
 package horde
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -10,7 +11,8 @@ func Boot() *Manager {
 
 	go func() {
 		http.HandleFunc("/", ManagerHandler(manager))
-		http.ListenAndServe(":9742", nil)
+
+		log.Print("HORDE HAS CRASHED - HELP", http.ListenAndServe(":9742", nil))
 	}()
 
 	return manager
