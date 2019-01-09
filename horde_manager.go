@@ -1,33 +1,82 @@
 package horde
 
+import (
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"sync"
+)
+
 // Manager keeps track of Nodes and Self.
 // Each Manager is self managing.
 // This is a holistic network.
 type Manager struct {
-	// Nodes that are about to be added to the network
+	sync.Mutex
+
+	// Nodes that are about to be added to the horde
 	StagedNodes []Node
 
-	// Nodes that all Nodes are aware of
-	CommitedNodes []Node
+	// StageSha is a unique sha that represents the latest StagedNodes
+	StageSha string
 
-	// Own information - set on boot
+	// Nodes that have have been committed in the horde
+	CommittedNodes []Node
+
+	// CommitSha is a unique sha that represents the latest CommittedNodes
+	CommitSha string
+
+	// ReadEpoch is a simple mechanism to keep track of pending or current reads.
+	// If the ReadEpoch is odd, the Manager is reading.
+	// If the ReadEpoch is even, the Manager has finished reading.
+	ReadEpoch int
+
+	// WriteEpoch is a simple mechanism to keep track of pending or current writes.
+	// If the WriteEpoch is odd, the Manager is writting.
+	// If the WriteEpoch is even, the Manager has finished writting.
+	WriteEpoch int
+
+	// Self contains static information about the node.
+	// This information is set on boot.
 	Self Node
 }
 
-// Node represents a node in the mesh
-type Node struct {
-	Domain string
-	IP     string
-}
+// Ping calls another node that is known to exist.
+// If properly load balanced (round robin) it should not matter which node we ping.
+// So we ping the first!
+func (m *Manager) Ping() []byte {
+	nodes := m.Nodes()
+	committedNodesLen := len(nodes)
 
-// Ping calls another node that is known to exist
-func (m *Manager) Ping() {
+	if committedNodesLen > 0 {
+		node := nodes[0]
 
+		res, err := http.Get(node.LocalIP)
+
+		if err != nil {
+			fmt.Print("Target horde node is either unhealthy or down!", err)
+		}
+
+		defer res.Body.Close()
+
+		if res.StatusCode == http.StatusOK {
+			_, err := ioutil.ReadAll(res.Body)
+
+			if err != nil {
+				fmt.Print("Failed to read body", err)
+
+				return []byte("pang")
+			}
+
+			return []byte("pong")
+		}
+	}
+
+	return []byte("pang")
 }
 
 // Nodes returns a list of known nodes
 // and their network info in the horde.
 // This method will not include Self
-func (m *Manager) Nodes() {
-
+func (m *Manager) Nodes() []Node {
+	return m.CommittedNodes
 }
