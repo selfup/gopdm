@@ -9,11 +9,12 @@ func Boot() *Manager {
 	manager := new(Manager)
 
 	go func() {
+		defer manager.RemoveSelfFromHorde()
+
 		http.HandleFunc("/", ManagerHandler(manager))
 
 		http.ListenAndServe(":9742", nil)
 
-		defer manager.RemoveSelfFromHorde()
 	}()
 
 	return manager
