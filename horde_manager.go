@@ -11,6 +11,7 @@ import (
 // Manager keeps track of Nodes and Self.
 // Each Manager is self managing.
 // This is a holistic network.
+// For the horde!
 type Manager struct {
 	sync.Mutex
 

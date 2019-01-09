@@ -1,3 +1,6 @@
+// Package horde is an attempt at behaving like erlang for distributed systems.
+//
+// Lok'tar!
 package horde
 
 import (
