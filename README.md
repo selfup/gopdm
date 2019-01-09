@@ -11,3 +11,27 @@ Replace need for centralized cache. Automatically shard data throughout a cluste
 ### TODO
 
 All of it :pray:
+
+### Example (very early API)
+
+```go
+package main
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/selfup/horde"
+)
+
+func main() {
+	hordeManager := horde.Boot()
+
+	res := hordeManager.Ping()
+
+	fmt.Println(res)
+
+	http.ListenAndServe(":8080", nil)
+}
+
+```

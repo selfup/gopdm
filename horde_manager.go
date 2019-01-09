@@ -1,7 +1,6 @@
 package horde
 
 import (
-	"bytes"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -44,9 +43,10 @@ type Manager struct {
 }
 
 // Ping calls another node that is known to exist.
-// If properly load balanced (round robin) it should not matter which node we ping.
+// Returns "pong" on success and "pang" on failure ala erlang.
+// If properly load balanced (round robin) it should not matter which node.
 // So we ping the first!
-func (m *Manager) Ping() []byte {
+func (m *Manager) Ping() string {
 	nodes := m.Nodes()
 	committedNodesLen := len(nodes)
 
@@ -67,14 +67,14 @@ func (m *Manager) Ping() []byte {
 			if err != nil {
 				log.Print("Failed to read body", err)
 
-				return []byte("pang")
+				return "pang"
 			}
 
-			return []byte("pong")
+			return "pong"
 		}
 	}
 
-	return []byte("pang")
+	return "pang"
 }
 
 // Nodes returns a list of known nodes
@@ -96,7 +96,7 @@ func (m *Manager) RemoveSelfFromHorde(stop chan os.Signal) {
 		// pang for now until API is available
 		res := m.Ping()
 
-		if bytes.Equal(res, []byte("pang")) {
+		if res == "pang" {
 			log.Print("Removal failed, please investigate!")
 		} else {
 			log.Print("Successfully removed from horde")
