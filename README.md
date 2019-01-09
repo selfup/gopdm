@@ -4,9 +4,9 @@ Masterless node tracker.
 
 ### What is this for?
 
-To have nodes talk to eachother and be aware of eachother in realtime.
+To have nodes talk to eachother and be aware of eachother in realtime :rocket:
 
-Replace need for centralized cache. Automatically shard data throughout a cluster.
+Think EPMD in erlang as a library for your go web apps :tada:
 
 ### TODO
 
