@@ -1,10 +1,11 @@
 package horde
 
 import (
-	"fmt"
+	"bytes"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 )
 
@@ -55,7 +56,7 @@ func (m *Manager) Ping() []byte {
 		res, err := http.Get(node.LocalIP)
 
 		if err != nil {
-			fmt.Print("Target horde node is either unhealthy or down!", err)
+			log.Print("Target horde node is either unhealthy or down!", err)
 		}
 
 		defer res.Body.Close()
@@ -64,7 +65,7 @@ func (m *Manager) Ping() []byte {
 			_, err := ioutil.ReadAll(res.Body)
 
 			if err != nil {
-				fmt.Print("Failed to read body", err)
+				log.Print("Failed to read body", err)
 
 				return []byte("pang")
 			}
@@ -86,6 +87,23 @@ func (m *Manager) Nodes() []Node {
 // RemoveSelfFromHorde is for when the http server fails or is shutdown.
 // Something needs to happen. Gotta clean up the mess.
 // This _will_ make a network call to a known node and remove itself from the horde!
-func (m *Manager) RemoveSelfFromHorde() {
-	log.Print("Horde has crashed - please send help")
+func (m *Manager) RemoveSelfFromHorde(stop chan os.Signal) {
+	select {
+	case sig := <-stop:
+		log.Printf("Horde got %s signal. Aborting...\n", sig)
+		log.Print("Attempting to remove self from horde")
+
+		// pang for now until API is available
+		res := m.Ping()
+
+		if bytes.Equal(res, []byte("pang")) {
+			log.Print("Removal failed, please investigate!")
+		} else {
+			log.Print("Successfully removed from horde")
+		}
+
+		// consider using a mux and doing a graceful shutdown
+		// this will let client dictate how they want to go out
+		os.Exit(1)
+	}
 }

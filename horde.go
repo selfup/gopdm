@@ -5,6 +5,8 @@ package horde
 
 import (
 	"net/http"
+	"os"
+	"os/signal"
 )
 
 // Boot starts up the Horde and returns the horde Manager
@@ -12,12 +14,13 @@ func Boot() *Manager {
 	manager := new(Manager)
 
 	go func() {
-		defer manager.RemoveSelfFromHorde()
+		stop := make(chan os.Signal, 1)
+		signal.Notify(stop, os.Interrupt)
 
-		http.HandleFunc("/", managerHandler(manager))
+		manager.RemoveSelfFromHorde(stop)
 
+		http.HandleFunc("/horde", managerHandler(manager))
 		http.ListenAndServe(":9742", nil)
-
 	}()
 
 	return manager
