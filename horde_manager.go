@@ -3,6 +3,7 @@ package horde
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"sync"
 )
@@ -79,4 +80,11 @@ func (m *Manager) Ping() []byte {
 // This method will not include Self
 func (m *Manager) Nodes() []Node {
 	return m.CommittedNodes
+}
+
+// RemoveSelfFromHorde is for When the http server fails or is shutdown.
+// Something needs to happen. Gotta clean up the mess.
+// This _will_ make a network call to a known node and remove itself from the horde!
+func (m *Manager) RemoveSelfFromHorde() {
+	log.Print("Horde has crashed - please send help")
 }
